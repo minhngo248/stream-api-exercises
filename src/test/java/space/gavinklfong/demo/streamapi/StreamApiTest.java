@@ -24,6 +24,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import space.gavinklfong.demo.streamapi.models.Customer;
 import space.gavinklfong.demo.streamapi.models.Order;
@@ -31,6 +32,8 @@ import space.gavinklfong.demo.streamapi.models.Product;
 import space.gavinklfong.demo.streamapi.repos.CustomerRepo;
 import space.gavinklfong.demo.streamapi.repos.OrderRepo;
 import space.gavinklfong.demo.streamapi.repos.ProductRepo;
+
+import javax.persistence.criteria.CriteriaBuilder;
 
 @Slf4j
 @DataJpaTest
@@ -83,65 +86,104 @@ public class StreamApiTest {
 	@DisplayName("Obtain a list of order with product category = \"Baby\"")
 	public void exercise2() {
 		List<Order> expected = orderRepo.exercise2();
-		System.out.println(expected);
 		List<Order> result = exerciseStreamApi.exercise2();
-		System.out.println(result);
+		Assertions.assertEquals(expected.size(), result.size());
 		Assertions.assertEquals(expected, result);
 	}
 
 	@Test
 	@DisplayName("Obtain a list of product with category = “Toys” and then apply 10% discount\"")
 	public void exercise3() {
+		List<Product> expected = productRepo.exercise3();
+		List<Product> result = exerciseStreamApi.exercise3();
+		Assertions.assertEquals(expected.size(), result.size());
+		Assertions.assertEquals(expected, result);
 	}
 
 	@Test
 	@DisplayName("Obtain a list of products ordered by customer of tier 2 between 01-Feb-2021 and 01-Apr-2021")
 	public void exercise4() {
 		List<Product> expected = productRepo.exercise4();
-		System.out.println(expected);
 		List<Product> result = exerciseStreamApi.exercise4();
-		System.out.println(result);
-		Assertions.assertEquals(expected, result);
+		Assertions.assertEquals(expected.size(), result.size());
+		expected.forEach(p ->
+				Assertions.assertTrue(result.contains(p))
+		);
 	}
 
 	@Test
 	@DisplayName("Get the 3 cheapest products of \"Books\" category")
 	public void exercise5() {
+		List<Product> expected = productRepo.exercise5().stream().limit(3).collect(Collectors.toList());
+		List<Product> result = exerciseStreamApi.exercise5();
+		Assertions.assertEquals(expected, result);
 	}
 
 	@Test
 	@DisplayName("Get the 3 most recent placed order")
 	public void exercise6() {
+		List<Order> expected = orderRepo.exercise6().stream().limit(3).collect(Collectors.toList());
+		List<Order> result = exerciseStreamApi.exercise6();
+		Assertions.assertEquals(expected, result);
 	}
 
 	@Test
 	@DisplayName("Get a list of products which was ordered on 15-Mar-2021")
 	public void exercise7() {
+		List<Product> expected = productRepo.exercise7();
+		List<Product> result = exerciseStreamApi.exercise7();
+		Assertions.assertEquals(expected.size(), result.size());
+		expected.forEach(p ->
+			Assertions.assertTrue(result.contains(p))
+		);
 	}
 
 	@Test
 	@DisplayName("Calculate the total lump of all orders placed in Feb 2021")
 	public void exercise8() {
+		Double expected = orderRepo.exercise8();
+		Double result = exerciseStreamApi.exercise8();
+		Assertions.assertEquals(expected, result);
 	}
 
 	@Test
 	@DisplayName("Calculate the total lump of all orders placed in Feb 2021 (using reduce with BiFunction)")
 	public void exercise8a() {
+		Double expected = orderRepo.exercise8();
+		Double result = exerciseStreamApi.exercise8a();
+		Assertions.assertEquals(expected, result);
 	}
 
 	@Test
 	@DisplayName("Calculate the average price of all orders placed on 15-Mar-2021")
 	public void exercise9() {
+		Double expected = orderRepo.exercise9();
+		Double result = exerciseStreamApi.exercise9();
+		Assertions.assertEquals(expected, result);
 	}
 
 	@Test
 	@DisplayName("Obtain statistics summary of all products belong to \"Books\" category")
 	public void exercise10() {
+		Integer count = productRepo.exercise10Count();
+		Double sum = productRepo.exercise10Sum();
+		Double min = productRepo.exercise10Min();
+		Double max = productRepo.exercise10Max();
+		DoubleSummaryStatistics expected = new DoubleSummaryStatistics(count, min, max, sum);
+		DoubleSummaryStatistics result = exerciseStreamApi.exercise10();
+		Assertions.assertEquals(expected.toString(), result.toString());
 	}
 
 	@Test
 	@DisplayName("Obtain a mapping of order id and the order's product count")
 	public void exercise11() {
+		Map<Long, Integer> expected = orderRepo.exercise11().stream()
+				.collect(Collectors.toMap(
+						row -> (Long) row[0],
+						row -> ((Long) row[1]).intValue()
+				));
+		Map<Long, Integer> result = exerciseStreamApi.exercise11();
+		Assertions.assertEquals(expected, result);
 	}
 
 	@Test

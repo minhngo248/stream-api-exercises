@@ -96,10 +96,9 @@ public class ExerciseStreamApi {
     public List<Product> exercise5() {
         // TODO: Get the 3 cheapest products of "Books" category
         List<Product> productList = productRepo.findAll();
-        Comparator<Product> comparator = (p1, p2) -> p2.getPrice().compareTo(p1.getPrice());
         return productList.stream()
                 .filter(p -> p.getCategory().equalsIgnoreCase("Books"))
-                .sorted(comparator)
+                .sorted(Comparator.comparing(Product::getPrice))
                 .limit(3)
                 .collect(Collectors.toList());
     }
