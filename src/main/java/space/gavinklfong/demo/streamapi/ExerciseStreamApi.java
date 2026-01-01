@@ -2,6 +2,7 @@ package space.gavinklfong.demo.streamapi;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import space.gavinklfong.demo.streamapi.models.Customer;
 import space.gavinklfong.demo.streamapi.models.Order;
 import space.gavinklfong.demo.streamapi.models.Product;
 import space.gavinklfong.demo.streamapi.repos.CustomerRepo;
@@ -169,31 +170,77 @@ public class ExerciseStreamApi {
                 .collect(Collectors.toMap(Order::getId, order -> order.getProducts().size()));
     }
 
-    public void exercise12() {
+    public Map<Customer, List<Order>> exercise12() {
         // TODO: Obtain a data map of customer and list of orders
+        List<Order> orderList = orderRepo.findAll();
+        return orderList.stream()
+                .collect(Collectors.groupingBy(Order::getCustomer));
     }
 
-    public void exercise12a() {
+    public Map<Long, List<Long>> exercise12a() {
         // TODO: Obtain a data map of customer_id and list of order_id(s)
+        List<Order> orderList = orderRepo.findAll();
+        return orderList.stream()
+                .collect(Collectors.groupingBy(
+                        order -> order.getCustomer().getId(),
+                        Collectors.mapping(Order::getId, Collectors.toList())
+                ));
     }
 
-    public void exercise13() {
+    public Map<Order, Double> exercise13() {
         // TODO: Obtain a data map with order and its total price
+        List<Order> orderList = orderRepo.findAll();
+        return orderList.stream()
+                .collect(Collectors.toMap(
+                        order -> order,
+                        order -> order.getProducts().stream()
+                                .mapToDouble(Product::getPrice)
+                                .sum()
+                ));
     }
 
-    public void exercise13a() {
+    public Map<Order, Double> exercise13a() {
         // TODO: Obtain a data map with order and its total price (using reduce)
+        List<Order> orderList = orderRepo.findAll();
+        return orderList.stream()
+                .collect(Collectors.toMap(
+                        order -> order,
+                        order -> order.getProducts().stream()
+                                .map(Product::getPrice)
+                                .reduce(0.0, Double::sum)
+                ));
     }
 
-    public void exercise14() {
+    public Map<String, List<String>> exercise14() {
         // TODO: Obtain a data map of product name by category
+        List<Product> productList = productRepo.findAll();
+        return productList.stream()
+                .collect(Collectors.groupingBy(
+                        Product::getCategory,
+                        Collectors.mapping(Product::getName, Collectors.toList())
+                ));
     }
 
-    public void exercise15() {
+    public Map<String, Optional<Product>> exercise15() {
         // TODO: Get the most expensive product per category
+        List<Product> productList = productRepo.findAll();
+        return productList.stream()
+                .collect(Collectors.groupingBy(
+                        Product::getCategory,
+                        Collectors.maxBy(Comparator.comparing(Product::getPrice))
+                ));
     }
 
-    public void exercise15a() {
+    public Map<String, String> exercise15a() {
         // TODO: Get the most expensive product (by name) per category
+        List<Product> productList = productRepo.findAll();
+        return productList.stream()
+                .collect(Collectors.groupingBy(
+                        Product::getCategory,
+                        Collectors.collectingAndThen(
+                                Collectors.maxBy(Comparator.comparing(Product::getPrice)),
+                                opt -> opt.map(Product::getName).orElse("")
+                        )
+                ));
     }
 }

@@ -1,7 +1,6 @@
 package space.gavinklfong.demo.streamapi.repos;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -28,4 +27,13 @@ public interface OrderRepo extends CrudRepository<Order, Long> {
 
 	@Query("SELECT o.id, COUNT(p) FROM Order o JOIN o.products p GROUP BY o.id")
 	List<Object[]> exercise11();
+
+	@Query("SELECT o.customer, o FROM Order o JOIN o.customer")
+	List<Object[]> exercise12();
+
+	@Query("SELECT o.customer.id, o.id FROM Order o")
+	List<Object[]> exercise12a();
+
+	@Query("SELECT o, SUM(p.price) FROM Order o JOIN o.products p GROUP BY o")
+	List<Object[]> exercise13();
 }
